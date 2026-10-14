@@ -32,17 +32,20 @@ def retrieve(question, docs, top_k=2):
     return [doc for score, doc in scores[:top_k]]
 
 
-question = input("Ask about the clinic: ")
-relevant_docs = retrieve(question, documents)
+while True:
+    question = input("\nAsk about the clinic (or 'exit'): ")
+    if question == "exit":
+        break
 
-print("\n--- Retrieved documents ---")
-for doc in relevant_docs:
-    print("-", doc)
+    relevant_docs = retrieve(question, documents)
 
-# 3. Augmentation: put the documents inside the prompt
-context = "\n".join(relevant_docs)
+    print("\n--- Retrieved documents ---")
+    for doc in relevant_docs:
+        print("-", doc)
 
-prompt = f"""Answer the question using ONLY the context below.
+    context = "\n".join(relevant_docs)
+
+    prompt = f"""Answer the question using ONLY the context below.
 If the answer is not in the context, say "I don't know".
 
 Context:
@@ -50,13 +53,12 @@ Context:
 
 Question: {question}"""
 
-# 4. Generation: the model answers from the context
-response = client.chat.completions.create(
-    model="deepseek/deepseek-v4.1-flash",
-    messages=[{"role": "user", "content": prompt}],
-    temperature=0.2,
-    max_tokens=1000,
-)
+    response = client.chat.completions.create(
+        model="deepseek/deepseek-v4.1-flash",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2,
+        max_tokens=1000,
+    )
 
-print("\n--- Answer ---")
-print(response.choices[0].message.content)
+    print("\n--- Answer ---")
+    print(response.choices[0].message.content)
